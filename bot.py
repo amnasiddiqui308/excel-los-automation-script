@@ -1,4 +1,5 @@
 from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Font
 from math import *
 
 wb = load_workbook("Example0_LOS Original.xlsx")
@@ -22,13 +23,19 @@ ws_row = 2
 ws_out_row = 2
 for i in range(1, ws.max_column + 1):
     ws_out.cell(1, i).value = ws.cell(1, i).value
+    ws_out.cell(1, i).number_format = ws.cell(1, i).number_format
+    ws_out.cell(1, i).font = Font(bold=True)   
 
 for i in names:
     for j in description:
         if i == ws.cell(ws_row, 1).value and j == ws.cell(ws_row, 2).value:
             for k in range(1, ws.max_column + 1):
 
-                ws_out.cell(ws_out_row, k).value = ws.cell(ws_row, k).value if not isinstance(ws.cell(ws_row, k).value, float) else round(ws.cell(ws_row, k).value, 2)
+                if not isinstance(ws.cell(ws_row, k).value, (float, int)):
+                    ws_out.cell(ws_out_row, k).value = ws.cell(ws_row, k).value 
+                else:
+                    ws_out.cell(ws_out_row, k).value = ws.cell(ws_row, k).value
+                    ws_out.cell(ws_out_row, k).number_format = "#,##0.00"
 
             ws_row += 1
 
@@ -37,7 +44,9 @@ for i in names:
             ws_out.cell(ws_out_row, 2).value = j
             for k in range(3, ws.max_column + 1):
                 ws_out.cell(ws_out_row, k).value = 0
+                ws_out.cell(ws_out_row, k).number_format = "#,##0.00"
 
         ws_out_row += 1
 
+ws_out.freeze_panes = ws_out['A2']
 wb_out.save("updated_sheet.xlsx")
